@@ -8,24 +8,41 @@ import {Server} from "socket.io";
 const app = express();
 const PORT = 4000;
 
-
-
-
-
 app.use(cors());
 app.use(express.json());
 app.use(morgan("dev"));
 
 app.get("/health", (_req, res) => {
   res.json({ok: true});
-}); 
+});
+
+app.get("/api/home/123/state", (_req, res) => {
+  res.json({
+    homeId: "123",
+    updatedAt: Date.now(),
+    sensors: {
+      temp_room: {
+        name: "Pokój",
+        value: 22.5,
+        unit: "°C",
+      },
+    },
+    security: {
+      alarm: {
+        armed: false,
+        triggered: false,
+      },
+    },
+    alerts: [],
+  });
+});
 
 const httpServer = createServer(app);
 
 const io = new Server(httpServer, {
-    cors: {
-        origin: ["http://localhost:5173"],
-        methods: ["GET", "POST"],
+  cors: {
+    origin: ["http://localhost:5173"],
+    methods: ["GET", "POST"],
   },
 });
 
