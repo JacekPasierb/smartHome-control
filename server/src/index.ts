@@ -54,6 +54,10 @@ io.on("connection", (socket) => {
   });
 });
 
+setInterval(() => {
+  io.emit("tick", {ts: Date.now()});
+}, 2000);
+
 httpServer.listen(PORT, () => {
   console.log(`Server running on http://localhost:${PORT}`);
 });
