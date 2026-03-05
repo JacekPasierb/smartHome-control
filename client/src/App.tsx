@@ -14,7 +14,6 @@ export default function App() {
   const socketRef = useRef<ReturnType<typeof io> | null>(null);
   const prevHomeIdRef = useRef(homeId);
 
-  // REST snapshot
   useEffect(() => {
     fetch(`${API_URL}/api/home/${homeId}/state`)
       .then((res) => res.json())
@@ -22,7 +21,6 @@ export default function App() {
       .catch(console.error);
   }, [homeId]);
 
-  // WebSocket connection
   useEffect(() => {
     const socket = io(WS_URL, {transports: ["websocket"]});
     socketRef.current = socket;
@@ -68,7 +66,6 @@ export default function App() {
     <div className="container">
       <h1>SmartHome Control Center</h1>
 
-      {/* HOME SWITCH */}
       <div style={{marginBottom: 16}}>
         <button onClick={() => setHomeId("123")}>Home A</button>
         <button onClick={() => setHomeId("456")} style={{marginLeft: 10}}>
@@ -78,7 +75,6 @@ export default function App() {
       </div>
 
       <div className="grid">
-        {/* SENSORS */}
         <div className="panel">
           <h2>Sensors</h2>
 
@@ -89,7 +85,6 @@ export default function App() {
           </div>
         </div>
 
-        {/* RIGHT PANEL */}
         <div style={{display: "grid", gap: 16}}>
           <div className="panel">
             <h2>Security</h2>
