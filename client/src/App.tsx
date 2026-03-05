@@ -3,6 +3,7 @@ import {io} from "socket.io-client";
 import {SensorCard} from "./components/SensorCard";
 import {SecurityCard} from "./components/SecurityCard";
 import {AlertsFeed} from "./components/AlertsFeed";
+import { LiveChart } from "./components/LiveChart";
 
 const API_URL = import.meta.env.VITE_API_URL as string;
 const WS_URL = import.meta.env.VITE_WS_URL as string;
@@ -10,7 +11,10 @@ const WS_URL = import.meta.env.VITE_WS_URL as string;
 export default function App() {
   const [homeId, setHomeId] = useState<"123" | "456">("123");
   const [data, setData] = useState<any>(null);
-
+const [chartSensorId, setChartSensorId] = useState<
+  "temp_fridge" | "temp_balcony" | "temp_room"
+  >("temp_room");
+  
   const socketRef = useRef<ReturnType<typeof io> | null>(null);
   const prevHomeIdRef = useRef(homeId);
 
@@ -86,6 +90,33 @@ export default function App() {
         </div>
 
         <div style={{display: "grid", gap: 16}}>
+          <div className="panel">
+            <h2>Live chart</h2>
+
+            <div
+              style={{
+                display: "flex",
+                gap: 10,
+                marginBottom: 12,
+                flexWrap: "wrap",
+              }}
+            >
+              <button onClick={() => setChartSensorId("temp_fridge")}>
+                Lodówka
+              </button>
+              <button onClick={() => setChartSensorId("temp_balcony")}>
+                Balkon
+              </button>
+              <button onClick={() => setChartSensorId("temp_room")}>
+                Pokój
+              </button>
+            </div>
+
+            <LiveChart
+              title={`Temperature • ${data.sensors[chartSensorId].name}`}
+              value={data.sensors[chartSensorId].value}
+            />
+          </div>
           <div className="panel">
             <h2>Security</h2>
 
