@@ -86,11 +86,43 @@ io.on("connection", (socket) => {
   });
 });
 
+type Alert = {
+  id: string;
+  type: "TEMP_FRIDGE_HIGH";
+  message: string;
+  severity: "warning";
+  createdAt: number;
+};
+
+const uid = () => Math.random().toString(16).slice(2) + Date.now().toString(16);
+
+function pushAlert(home: any, alert: Alert) {
+  home.alerts.unshift(alert);
+  home.alerts = home.alerts.slice(0, 20);
+}
+
 setInterval(() => {
   Object.values(homes).forEach((home: any) => {
     home.sensors.temp_fridge.value = Number(
       (2 + Math.random() * 10).toFixed(1)
     );
+    if (home.sensors.temp_fridge.value > 8) {
+      const alert: Alert = {
+        id: uid(),
+        type: "TEMP_FRIDGE_HIGH",
+        message: `Lodówka za ciepła: ${home.sensors.temp_fridge.value}°C`,
+        severity: "warning",
+        createdAt: Date.now(),
+      };
+
+      pushAlert(home, alert);
+
+      io.to(`home:${home.homeId}`).emit("alert:new", {
+        homeId: home.homeId,
+        alert,
+      });
+    }
+
     home.sensors.temp_balcony.value = Number(
       (-10 + Math.random() * 20).toFixed(1)
     );

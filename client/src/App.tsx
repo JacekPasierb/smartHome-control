@@ -34,6 +34,10 @@ export default function App() {
       }
     });
 
+    socket.on("alert:new", (payload) => {
+      console.log("ALERT", payload);
+    });
+
     return () => {
       socket.disconnect();
       socketRef.current = null;
