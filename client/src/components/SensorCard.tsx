@@ -1,10 +1,10 @@
-type Sensor = {
-  name: string;
-  value: number;
-  unit: string;
+import type {Sensor} from "../types/home";
+
+type SensorCardProps = {
+  sensor: Sensor;
 };
 
-export function SensorCard({sensor}: {sensor: Sensor}) {
+export function SensorCard({sensor}: SensorCardProps) {
   return (
     <div className="card">
       <div className="cardTitle">{sensor.name}</div>

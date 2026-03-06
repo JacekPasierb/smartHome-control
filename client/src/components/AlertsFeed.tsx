@@ -1,12 +1,9 @@
-type Alert = {
-  id: string;
-  message: string;
-  severity: "warning" | "info" | "critical";
-  createdAt: number;
+import type {Alert} from "../types/home";
+type AlertsFeedProps = {
+  alerts: Alert[];
 };
-
-export function AlertsFeed({alerts}: {alerts: Alert[]}) {
-  if (!alerts?.length) return <div className="muted">No alerts</div>;
+export function AlertsFeed({alerts}: AlertsFeedProps) {
+  if (!alerts.length) return <div className="muted">No alerts</div>;
 
   return (
     <div className="alerts">

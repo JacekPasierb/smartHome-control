@@ -3,18 +3,24 @@ import {io} from "socket.io-client";
 import {SensorCard} from "./components/SensorCard";
 import {SecurityCard} from "./components/SecurityCard";
 import {AlertsFeed} from "./components/AlertsFeed";
-import { LiveChart } from "./components/LiveChart";
+import {LiveChart} from "./components/LiveChart";
+import type {
+  AlertNewPayload,
+  HomeId,
+  HomeState,
+  HomeUpdatePayload,
+  TemperatureSensorId,
+} from "./types/home";
 
 const API_URL = import.meta.env.VITE_API_URL as string;
 const WS_URL = import.meta.env.VITE_WS_URL as string;
 
 export default function App() {
-  const [homeId, setHomeId] = useState<"123" | "456">("123");
-  const [data, setData] = useState<any>(null);
-const [chartSensorId, setChartSensorId] = useState<
-  "temp_fridge" | "temp_balcony" | "temp_room"
-  >("temp_room");
-  
+  const [homeId, setHomeId] = useState<HomeId>("123");
+  const [data, setData] = useState<HomeState | null>(null);
+  const [chartSensorId, setChartSensorId] =
+    useState<TemperatureSensorId>("temp_room");
+
   const socketRef = useRef<ReturnType<typeof io> | null>(null);
   const prevHomeIdRef = useRef(homeId);
 
@@ -35,13 +41,13 @@ const [chartSensorId, setChartSensorId] = useState<
       socket.emit("subscribe:home", prevHomeIdRef.current);
     });
 
-    socket.on("home:update", (payload) => {
-      if (payload?.homeId === prevHomeIdRef.current) {
+    socket.on("home:update", (payload: HomeUpdatePayload) => {
+      if (payload.homeId === prevHomeIdRef.current) {
         setData(payload);
       }
     });
 
-    socket.on("alert:new", (payload) => {
+    socket.on("alert:new", (payload: AlertNewPayload) => {
       console.log("ALERT:", payload);
     });
 
@@ -83,7 +89,7 @@ const [chartSensorId, setChartSensorId] = useState<
           <h2>Sensors</h2>
 
           <div className="cardsGrid">
-            {Object.entries(data.sensors).map(([key, sensor]: any) => (
+            {Object.entries(data.sensors).map(([key, sensor]) => (
               <SensorCard key={key} sensor={sensor} />
             ))}
           </div>

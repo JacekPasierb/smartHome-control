@@ -1,7 +1,10 @@
-type Door = {name: string; state: "open" | "closed"};
-type Alarm = {armed: boolean; triggered: boolean};
+import type {Alarm, Door} from "../types/home";
 
-export function SecurityCard({door, alarm}: {door: Door; alarm: Alarm}) {
+type SecurityCardProps = {
+  door: Door;
+  alarm: Alarm;
+};
+export function SecurityCard({door, alarm}: SecurityCardProps) {
   return (
     <div className="card">
       <div className="cardTitle">Security</div>

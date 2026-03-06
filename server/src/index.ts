@@ -43,7 +43,6 @@ const homes: Record<string, any> = {
     alerts: [],
   },
 };
-
 app.use(cors());
 app.use(express.json());
 app.use(morgan("dev"));
@@ -52,9 +51,25 @@ app.get("/health", (_req, res) => {
   res.json({ok: true});
 });
 
-app.get("/api/home/:id/state", (_req, res) => {
-  const {id} = _req.params;
+app.get("/api/home/:id/state", (req, res) => {
+  const {id} = req.params;
   res.json(homes[id] ?? homes["123"]);
+});
+
+app.put("/api/home/:id/alarm", (req, res) => {
+  const {id} = req.params;
+  const {armed} = req.body as {armed: boolean};
+
+  const home = homes[id] ?? homes["123"];
+  home.security.alarm.armed = Boolean(armed);
+
+  if (!home.security.alarm.armed) home.security.alarm.triggered = false;
+
+  home.updatedAt = Date.now();
+
+  io.to(`home:${home.homeId}`).emit("home:update", home);
+
+  res.json(home);
 });
 
 const httpServer = createServer(app);
