@@ -53,3 +53,7 @@ export type AlertNewPayload = {
 };
 
 export type TemperatureSensorId = "temp_fridge" | "temp_balcony" | "temp_room";
+
+export type SubscribeHomePayload = HomeId;
+
+export type UnsubscribeHomePayload = HomeId;

@@ -1,19 +1,13 @@
-import {useEffect, useRef, useState} from "react";
-import {io} from "socket.io-client";
+import {useEffect, useState} from "react";
+
 import {SensorCard} from "./components/SensorCard";
 import {SecurityCard} from "./components/SecurityCard";
 import {AlertsFeed} from "./components/AlertsFeed";
 import {LiveChart} from "./components/LiveChart";
-import type {
-  AlertNewPayload,
-  HomeId,
-  HomeState,
-  HomeUpdatePayload,
-  TemperatureSensorId,
-} from "./types/home";
+import type {HomeId, HomeState, TemperatureSensorId} from "./types/home";
+import {useHomeSocket} from "./hooks/useHomeSocket";
 
 const API_URL = import.meta.env.VITE_API_URL as string;
-const WS_URL = import.meta.env.VITE_WS_URL as string;
 
 export default function App() {
   const [homeId, setHomeId] = useState<HomeId>("123");
@@ -21,61 +15,31 @@ export default function App() {
   const [chartSensorId, setChartSensorId] =
     useState<TemperatureSensorId>("temp_room");
 
-  const socketRef = useRef<ReturnType<typeof io> | null>(null);
-  const prevHomeIdRef = useRef(homeId);
-
   useEffect(() => {
     fetch(`${API_URL}/api/home/${homeId}/state`)
       .then((res) => res.json())
       .then((json) => setData(json))
       .catch(console.error);
   }, [homeId]);
-
-  useEffect(() => {
-    const socket = io(WS_URL, {transports: ["websocket"]});
-    socketRef.current = socket;
-
-    socket.on("connect", () => {
-      console.log("WS connected:", socket.id);
-
-      socket.emit("subscribe:home", prevHomeIdRef.current);
-    });
-
-    socket.on("home:update", (payload: HomeUpdatePayload) => {
-      if (payload.homeId === prevHomeIdRef.current) {
-        setData(payload);
-      }
-    });
-
-    socket.on("alert:new", (payload: AlertNewPayload) => {
+  const {wsStatus} = useHomeSocket(
+    homeId,
+    (payload) => {
+      setData(payload);
+    },
+    (payload) => {
       console.log("ALERT:", payload);
-    });
-
-    return () => {
-      socket.disconnect();
-      socketRef.current = null;
-    };
-  }, []);
-
-  // switch home
-  useEffect(() => {
-    const socket = socketRef.current;
-    const prevHomeId = prevHomeIdRef.current;
-
-    if (socket?.connected) {
-      socket.emit("unsubscribe:home", prevHomeId);
-      socket.emit("subscribe:home", homeId);
     }
-
-    prevHomeIdRef.current = homeId;
-  }, [homeId]);
-
+  );
+  const wsStatusColor = wsStatus === "online" ? "green" : wsStatus === "connecting" ? "gold" : "red";
+  const wsStatusText = wsStatus === "online" ? "Online" : wsStatus === "connecting" ? "Connecting" : "Offline";
   if (!data) return <div style={{padding: 20}}>Loading...</div>;
-
   return (
     <div className="container">
       <h1>SmartHome Control Center</h1>
-
+      <div style={{display:"flex", alignItems:"center", gap: 10, marginBottom: 16}}>
+        <div style={{width:"10px", height:"10px", borderRadius:"999px", backgroundColor: wsStatusColor  } }></div>
+        <span>{wsStatusText}</span>      
+      </div>
       <div style={{marginBottom: 16}}>
         <button onClick={() => setHomeId("123")}>Home A</button>
         <button onClick={() => setHomeId("456")} style={{marginLeft: 10}}>
