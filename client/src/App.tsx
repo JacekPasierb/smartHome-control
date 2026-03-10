@@ -6,6 +6,7 @@ import {AlertsFeed} from "./components/AlertsFeed";
 import {LiveChart} from "./components/LiveChart";
 import type {HomeId, HomeState, TemperatureSensorId} from "./types/home";
 import {useHomeSocket} from "./hooks/useHomeSocket";
+import { DashboardHeader } from "./components/DashboardHeader";
 
 const API_URL = import.meta.env.VITE_API_URL as string;
 
@@ -30,23 +31,16 @@ export default function App() {
       console.log("ALERT:", payload);
     }
   );
-  const wsStatusColor = wsStatus === "online" ? "green" : wsStatus === "connecting" ? "gold" : "red";
-  const wsStatusText = wsStatus === "online" ? "Online" : wsStatus === "connecting" ? "Connecting" : "Offline";
+ 
+  
   if (!data) return <div style={{padding: 20}}>Loading...</div>;
   return (
     <div className="container">
-      <h1>SmartHome Control Center</h1>
-      <div style={{display:"flex", alignItems:"center", gap: 10, marginBottom: 16}}>
-        <div style={{width:"10px", height:"10px", borderRadius:"999px", backgroundColor: wsStatusColor  } }></div>
-        <span>{wsStatusText}</span>      
-      </div>
-      <div style={{marginBottom: 16}}>
-        <button onClick={() => setHomeId("123")}>Home A</button>
-        <button onClick={() => setHomeId("456")} style={{marginLeft: 10}}>
-          Home B
-        </button>
-        <span style={{marginLeft: 12}}>Active: {homeId}</span>
-      </div>
+      <DashboardHeader
+        wsStatus={wsStatus}
+        homeId={homeId}
+        setHomeId={setHomeId}
+      />
 
       <div className="grid">
         <div className="panel">
